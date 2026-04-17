@@ -70,7 +70,7 @@
         </div>
         <aside class="notes">
           停顿 2 秒再翻页。先让红色数字停留，再展示绿色。
-          口播："560 处 any、0 个测试、0 个 hook —— 这是我们一个运行了两年的子应用改造前的状态。7 天后：0 处 any、2987 个测试、三层自动防护。改造者不是一个团队，是一个人加几个 AI Agent。"
+          口播："1,717 处 any、0 个测试、0 个 hook —— 这是改造前的状态。7 天后：0 处 any、2,987 个测试、三层自动防护。改造者不是一个团队，是一个人加几个 AI Agent。"
         </aside>
       </section>
 
@@ -622,6 +622,9 @@
           </tbody>
         </table>
         <p style="margin-top: 1.5em;"><a href="#/ending" style="color: var(--accent);">&larr; 返回 Q&A</a></p>
+        <aside class="notes">
+          这页是导航页，不展开数据。根据现场提问直接跳转 A1-A6；若无人点数据细节，可返回 Q&A 收尾。
+        </aside>
       </section>
 
       <!-- A1: sms-web 改造对比 -->
@@ -650,6 +653,9 @@
           </div>
         </div>
         <p style="margin-top: 1em;"><a href="#/appendix-index" style="color: var(--accent);">&larr; 返回附录索引</a></p>
+        <aside class="notes">
+          这是单应用前后对比的“证据页”。重点读三行：any 从 560 到 0、测试从 0 到 2,901、防护从 0 到三层。其余作为佐证快速带过。
+        </aside>
       </section>
 
       <!-- A2: 各子应用 commit 数 -->
@@ -673,6 +679,9 @@
           </tbody>
         </table>
         <p style="margin-top: 1em;"><a href="#/appendix-index" style="color: var(--accent);">&larr; 返回附录索引</a></p>
+        <aside class="notes">
+          用这页回答“工作量分布”问题：sms/cmp 是样板和复制验证主战场，所以 commit 更高；main/scr/form 体量更小或独立性更高，commit 相对少。
+        </aside>
       </section>
 
       <!-- A3: Commit 类型分布 -->
@@ -692,6 +701,9 @@
           </tbody>
         </table>
         <p style="margin-top: 1em;"><a href="#/appendix-index" style="color: var(--accent);">&larr; 返回附录索引</a></p>
+        <aside class="notes">
+          这页强调“改造不是只写新功能”。chore+fix 占比过半，说明大量精力在基建统一和历史问题修复；feat 占比不高但决定了闸门能力。
+        </aside>
       </section>
 
       <!-- A4: 测试覆盖分应用明细 -->
@@ -710,6 +722,9 @@
           </tbody>
         </table>
         <p style="margin-top: 1em;"><a href="#/appendix-index" style="color: var(--accent);">&larr; 返回附录索引</a></p>
+        <aside class="notes">
+          说明口径：161 是“去重后的独立测试文件”，不是物理副本总和。共享子应用复用同一套 services 测试，所以质量覆盖看 2,987 用例更有意义。
+        </aside>
       </section>
 
       <!-- A5: 后续探索前提条件 -->
@@ -728,6 +743,9 @@
           </tbody>
         </table>
         <p style="margin-top: 1em;"><a href="#/appendix-index" style="color: var(--accent);">&larr; 返回附录索引</a></p>
+        <aside class="notes">
+          回答“下一步怎么走”时用这页：代码级已完成，流程级和系统级还缺 E2E、Jenkins 质量关卡、可观测性和任务系统。结论是方向清晰但需要分阶段推进。
+        </aside>
       </section>
 
       <!-- A6: 80 个 Bug 分类 -->
@@ -743,6 +761,9 @@
           <li style="margin-bottom: 0.5em;"><strong>格式化级联修复</strong></li>
         </ul>
         <p style="margin-top: 1em;"><a href="#/appendix-index" style="color: var(--accent);">&larr; 返回附录索引</a></p>
+        <aside class="notes">
+          用于回答“80 个 bug 主要来自哪里”。强调前三类：开发环境、类型系统、路由。点出这是工程迁移常见雷区，不是单一业务逻辑问题。
+        </aside>
       </section>
 
     </div><!-- .slides -->
