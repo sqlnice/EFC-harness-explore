@@ -111,6 +111,7 @@
         </blockquote>
         <aside class="notes">
           金句页，停顿 2-3 秒。强调"不需要刻意做 Context Engineering，不需要单独搭 RAG"。
+          精简口播：不用在仓库外另搭上下文系统，不用额外维护 RAG 或 memory 文件。先把仓库做干净，让代码本身成为上下文；仓库越不纯净，AI 虽然也能找到信息，但会更耗 token。
         </aside>
       </section>
 
@@ -118,9 +119,9 @@
       <section id="why-not-traditional">
         <h2>为什么传统协作方式不适合 Agent</h2>
         <ul>
-          <li>Agent 没有"记忆上一轮犯了什么错"的能力<br><span style="color: var(--muted); font-size: var(--text-secondary);">每次启动都是一张白纸</span></li>
-          <li>传统方式靠<strong>人的经验积累</strong>保证质量<br><span style="color: var(--muted); font-size: var(--text-secondary);">Agent 需要<strong>系统的反馈机制</strong></span></li>
-          <li>思考成本变低，迭代速度变快<br><span style="color: var(--muted); font-size: var(--text-secondary);">"不要怕，经验是迭代出来的"</span></li>
+          <li>Agent 没有"记忆上一轮犯了什么错"的能力</li>
+          <li>传统方式靠<strong>人的经验积累</strong>保证质量</li>
+          <li>思考成本变低，迭代速度变快</li>
         </ul>
         <blockquote style="margin-top: var(--space-md); font-size: var(--text-body); border-left: 4px solid var(--accent-warm); padding: var(--space-xs) var(--space-sm); font-style: normal;">
           以前保证代码质量靠的是"找对的人"；现在靠的是"建对的闸门"。<br>
@@ -128,6 +129,7 @@
         </blockquote>
         <aside class="notes">
           讲"三省六部"比喻 —— 给不同人分配职责、用流程文档约束行为，在 Agent 时代不适用。讲完三点后停顿 2 秒，读金句收束。
+          补充解释放口播：Agent 每次启动都像一张白纸；传统方式依赖人的经验积累，但 Agent 需要系统反馈机制；迭代速度快以后，经验要靠快速试错沉淀出来。
         </aside>
       </section>
 
@@ -160,11 +162,9 @@
             </div>
           </div>
         </div>
-        <p class="no-fragment text-muted-warm text-center">
-          AI 不只帮你写代码，还能把零散信息变成可执行的计划
-        </p>
         <aside class="notes">
           讲起源："这次改造不是某天拍脑袋决定的。前几个月我一直在 X、V2EX、小红书上收集 AI 编程的实践文章，然后用 LLM 整合成一套执行计划，再到 EFC 项目实战验证。最终沉淀出 1683 行实践记录。"
+          收束句放口播：AI 不只帮你写代码，还能把零散信息变成可执行的计划。
         </aside>
       </section>
 
@@ -313,11 +313,9 @@
             </tr>
           </tbody>
         </table>
-        <p class="no-fragment text-muted mt-md">
-          反馈延迟从天级压缩到秒级 —— 不是线性提升，是质变
-        </p>
         <aside class="notes">
           重点对比绿色（秒级）和红色（天级）。补充：vitest reporter 设为 dot（沉默设计），反馈环路降噪也很重要。
+          收束句放口播：反馈延迟从天级压缩到秒级，不是线性提升，是质变。
         </aside>
       </section>
 
@@ -349,11 +347,9 @@
             <p>改完 skill 后重新跑一遍，<br><strong>旧产物还会不会复活？</strong></p>
           </div>
         </div>
-        <p class="text-muted mt-md">
-          解法：PostToolUse hook 自动检测 skill 产物被编辑 &rarr; <strong class="highlight-warm">提醒将改动回流到 skill 模板。</strong>
-        </p>
         <aside class="notes">
           核心观点：改生成物没用，要改生成它的指令。两个反问是最实用的落地习惯。反问 1 Agent 能帮你做（grep skill 文件），反问 2 需要人判断。
+          解法放口播：用 PostToolUse hook 自动检测 skill 产物被编辑，提醒把改动回流到 skill 模板。
         </aside>
       </section>
 
@@ -514,6 +510,11 @@
         </table>
         <aside class="notes">
           逐条讲，每条 30 秒左右。原则 1-2 用转折点 1 数据做锚点；原则 3-4 用转折点 2 实验做锚点；原则 5 用转折点 3 故事做锚点。
+          原则 3 可举 3 个“编译期质量闸”例子：
+          1) TypeScript：接口字段变更后，未同步的调用点在 tsc 阶段直接报错，避免运行时 undefined。
+          2) Java Spring Boot：方法签名或泛型类型不匹配时，mvn/gradle 编译阶段直接失败，问题不会带到接口联调。
+          3) Rust：所有权/借用不满足时编译不通过，提前拦截数据竞争和悬垂引用。
+          反例：纯 JavaScript 项目里把 number 当 string 传递，通常要到运行时或线上日志才暴露，反馈延迟更长、修复成本更高。
         </aside>
       </section>
 
@@ -557,6 +558,19 @@
         </aside>
       </section>
 
+      <!-- Page 28: 金句 - 速度与能力 -->
+      <section class="slide-quote" id="quote-speed-vs-architecture">
+        <blockquote>
+          Agent 生成越快，<br>
+          越要提升自己的<strong>架构能力</strong>、<strong>业务理解</strong>和与 AI 对话的<strong>直觉</strong>。<br><br>
+          否则速度只会把问题放大成<br>
+          <strong>螺旋屎山。</strong>
+        </blockquote>
+        <aside class="notes">
+          这一页建议停顿 2-3 秒。口播重点：速度本身不等于质量，快只是放大器；架构判断、业务理解和对话直觉决定了放大的是好设计还是坏设计。
+        </aside>
+      </section>
+
       <!-- Page 29: 三层健康架构图 -->
       <section id="three-layers">
         <h2>后续探索：三层健康架构</h2>
@@ -593,9 +607,10 @@
           Harness 时代我们不再教 AI ——<br><br>
           <strong>我们建一个系统，<br>让 AI 自己知道有没有做对。</strong>
         </blockquote>
-        <p style="margin-top: var(--space-xl); font-size: var(--text-secondary); color: var(--muted);">Q&A &nbsp;&middot;&nbsp; <a href="#/appendix-index" style="color: var(--accent);">附录索引 &rarr;</a></p>
+        <p style="margin-top: var(--space-xl); font-size: var(--text-secondary); color: var(--muted);"><a href="#/appendix-index" style="color: var(--accent);">附录索引 &rarr;</a></p>
         <aside class="notes">
           先停顿 3 秒，让金句沉淀。然后："这个系统不是什么新东西，就是我们积累了很多年的工程化体系 —— 类型系统、lint、测试、CI。唯一的区别是，现在它的反馈对象不只是人，还有 Agent。" 然后进入 Q&A。如果有人问细节，可以跳到附录。
+          Q&A 改为口播，不放正文。
         </aside>
       </section>
 
