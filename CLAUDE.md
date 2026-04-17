@@ -1,5 +1,7 @@
 # EFC Harness Explore
 
+**线上地址**: https://efc-harness-explore.vercel.app
+
 This is a reveal.js presentation about using AI agents (Claude Code + Opus 4.6) to refactor a large enterprise frontend project (EFC, 9 micro-frontend sub-apps on qiankun). The talk covers the methodology of "Harness" — building automated feedback systems (tsc/eslint/vitest hooks) that let AI agents self-correct.
 
 ## Design Context
