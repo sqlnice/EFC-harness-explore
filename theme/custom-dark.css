@@ -1,0 +1,501 @@
+/**
+ * Custom Dark Theme for Harness 演讲
+ * 基于 reveal.js black theme，针对演讲场景优化
+ */
+
+:root {
+  --r-background-color: #0a0a0f;
+  --r-main-font: "PingFang SC", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --r-main-font-size: 30px;
+  --r-main-color: #e8e8ec;
+  --r-heading-font: "PingFang SC", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, sans-serif;
+  --r-heading-color: #ffffff;
+  --r-heading-letter-spacing: 0.02em;
+  --r-heading-text-transform: none;
+  --r-heading-font-weight: 700;
+  --r-link-color: #6eb6ff;
+  --r-link-color-hover: #9dd1ff;
+  --r-selection-background-color: #3b82f6;
+  --r-selection-color: #fff;
+
+  /* Custom tokens */
+  --accent: #6eb6ff;
+  --accent-warm: #f5a623;
+  --accent-warm-soft: #d4915a;
+  --accent-green: #34d399;
+  --accent-red: #f87171;
+  --surface: #16161d;
+  --surface-2: #1e1e28;
+  --surface-warm: #1a1714;
+  --border: #2a2a36;
+  --border-warm: #3d3226;
+  --muted: #888899;
+  --muted-warm: #a89880;
+  --number-color: #6eb6ff;
+
+  /* Type scale (base 30px, ~1.33 ratio) */
+  --text-hero: 96px;
+  --text-display: 52px;
+  --text-title: 1.6em;     /* 48px */
+  --text-subtitle: 1.2em;  /* 36px */
+  --text-body: 1em;        /* 30px */
+  --text-secondary: 0.8em; /* 24px */
+  --text-caption: 0.67em;  /* 20px */
+  --text-data-lg: 64px;    /* secondary data numbers */
+  --number-font-size: 96px; /* alias for responsive override */
+
+  /* Spacing scale */
+  --space-xs: 0.4em;
+  --space-sm: 0.8em;
+  --space-md: 1.2em;
+  --space-lg: 2em;
+  --space-xl: 3em;
+
+  /* Transitions */
+  --transition-fast: 150ms ease-out;
+  --transition-normal: 250ms ease-out;
+}
+
+/* ===== 全局重置 ===== */
+.reveal-viewport {
+  background-color: var(--r-background-color);
+}
+.reveal {
+  font-weight: 400;
+  line-height: 1.7; /* slightly looser for light-on-dark */
+  color: var(--r-main-color);
+  font-family: var(--r-main-font);
+  font-size: var(--r-main-font-size);
+}
+
+/* 确保 reveal.js 内置 blockquote 没有白色背景 */
+.reveal blockquote {
+  background: none;
+  box-shadow: none;
+}
+
+/* ===== Headings ===== */
+.reveal h1 {
+  font-size: 2.2em;
+  line-height: 1.2;
+  margin-bottom: var(--space-xs);
+}
+.reveal h2 {
+  font-size: var(--text-title);
+  line-height: 1.25;
+  margin-bottom: var(--space-sm);
+}
+.reveal h3 {
+  font-size: var(--text-subtitle);
+  line-height: 1.3;
+  color: var(--muted);
+  font-weight: 500;
+  margin-top: 0;
+  margin-bottom: var(--space-md);
+}
+/* h2 紧跟 h3 时收紧间距 */
+.reveal h2 + h3 {
+  margin-top: -0.3em;
+}
+
+/* ===== 布局工具类 ===== */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-lg);
+  margin-top: var(--space-md);
+  align-items: start;
+}
+.two-col--story {
+  grid-template-columns: 5fr 4fr;
+}
+.content-block {
+  margin-top: var(--space-md);
+  max-width: 90%;
+}
+
+/* ===== 信息链路流 ===== */
+.flow-chain {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-md);
+  margin: var(--space-xl) auto var(--space-md);
+  font-size: var(--text-secondary);
+}
+.flow-chain .flow-node {
+  background: var(--surface);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--accent-warm);
+  text-align: center;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+.flow-chain .flow-label {
+  font-size: var(--text-caption);
+  color: var(--muted);
+}
+.flow-cycle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+.flow-cycle .flow-node {
+  z-index: 1;
+}
+.cycle-arrows {
+  margin: 0.6em 0;
+  overflow: visible;
+}
+
+/* ===== 页面类型样式 ===== */
+
+/* 金句页 */
+.slide-quote {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100%;
+}
+.slide-quote blockquote {
+  font-size: var(--text-display);
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  border-left: 4px solid var(--accent-warm);
+  padding: 0.4em 0.8em;
+  background: linear-gradient(135deg, rgba(245, 166, 35, 0.06) 0%, transparent 60%);
+  max-width: 85%;
+  text-align: left;
+  font-style: normal;
+  color: #fff;
+  box-shadow: none;
+}
+.slide-quote blockquote strong {
+  color: var(--accent-warm);
+}
+
+/* 数据页 - 大数字 */
+.big-number {
+  font-size: var(--text-hero);
+  font-weight: 800;
+  color: var(--number-color);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.big-number-label {
+  font-size: var(--text-secondary);
+  color: var(--muted);
+  margin-top: 0.3em;
+}
+
+/* 数据网格 */
+.data-grid {
+  display: grid;
+  gap: var(--space-lg);
+  justify-items: center;
+  align-items: start;
+  margin: var(--space-md) auto;
+}
+.data-grid.cols-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+.data-grid.cols-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+.data-cell {
+  text-align: center;
+}
+
+/* 对比页 */
+.compare-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-lg);
+  margin: var(--space-md) auto;
+  max-width: 90%;
+}
+.compare-before, .compare-after {
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 1.5em;
+  border: 1px solid var(--border);
+  transition: border-color var(--transition-fast);
+}
+.compare-before {
+  border-top: 3px solid var(--accent-red);
+}
+.compare-after {
+  border-top: 3px solid var(--accent-green);
+}
+.compare-before h3,
+.compare-after h3 {
+  margin-top: 0;
+}
+
+/* 过渡页 */
+.slide-transition {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.slide-transition h2 {
+  font-size: 2em;
+  color: var(--accent-warm);
+}
+
+/* ===== 表格 ===== */
+.reveal table {
+  margin: var(--space-sm) auto;
+  border-collapse: collapse;
+  font-size: var(--text-secondary);
+  width: auto;
+  max-width: 95%;
+}
+.reveal table th {
+  background: var(--surface-2);
+  color: var(--accent);
+  font-weight: 700;
+  padding: 0.6em 1em;
+  border-bottom: 2px solid var(--border);
+  text-align: left;
+}
+.reveal table td {
+  padding: 0.5em 1em;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  transition: background var(--transition-fast);
+}
+.reveal table tr:hover td {
+  background: var(--surface);
+}
+
+/* ===== 列表 ===== */
+.reveal ul, .reveal ol {
+  text-align: left;
+  margin-left: 1em;
+}
+.reveal li {
+  margin-bottom: 0.4em;
+  line-height: 1.5;
+}
+
+/* ===== 代码块 ===== */
+.reveal pre {
+  font-size: 0.7em;
+  border-radius: 8px;
+  box-shadow: none;
+  border: 1px solid var(--border);
+}
+.reveal code {
+  font-family: "Fira Code", "JetBrains Mono", "SF Mono", monospace;
+}
+
+/* ===== 时间线 ===== */
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6em;
+  max-width: 85%;
+  margin: 0 auto;
+}
+.timeline-item {
+  display: grid;
+  grid-template-columns: 80px 4px 1fr;
+  gap: 1em;
+  align-items: start;
+}
+.timeline-day {
+  font-weight: 700;
+  color: var(--accent-warm);
+  text-align: left;
+  font-size: var(--text-secondary);
+  white-space: nowrap;
+}
+.timeline-bar {
+  width: 4px;
+  background: var(--accent-warm);
+  border-radius: 2px;
+  min-height: 100%;
+  opacity: 0.4;
+}
+.timeline-content {
+  font-size: var(--text-secondary);
+  color: var(--r-main-color);
+  padding-bottom: 0.3em;
+}
+
+/* ===== 三层架构图 ===== */
+.arch-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  max-width: 75%;
+  margin: var(--space-md) auto;
+}
+.arch-layer {
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  padding: 1em 1.5em;
+  text-align: center;
+  position: relative;
+  transition: border-color var(--transition-normal), background var(--transition-normal);
+}
+.arch-layer.done {
+  border-color: var(--accent-green);
+  background: rgba(52, 211, 153, 0.08);
+}
+.arch-layer.next {
+  border-color: var(--accent);
+  background: rgba(110, 182, 255, 0.08);
+}
+.arch-layer.future {
+  border-color: var(--muted);
+  background: rgba(136, 136, 153, 0.05);
+}
+.arch-label {
+  font-size: var(--text-caption);
+  color: var(--muted);
+  position: absolute;
+  right: 1em;
+  top: 0.5em;
+}
+
+/* ===== 原则卡片 ===== */
+.principle-card {
+  background: var(--surface);
+  border-radius: 12px;
+  padding: var(--space-md) 1.5em;
+  border-left: 4px solid var(--accent-warm);
+  margin: var(--space-sm) 0;
+  text-align: left;
+}
+.principle-card h3 {
+  color: var(--accent-warm);
+  margin: 0 0 0.3em 0;
+  font-size: var(--text-secondary);
+  font-weight: 700;
+}
+.principle-card p {
+  font-size: var(--text-secondary);
+  color: var(--r-main-color);
+  margin: 0;
+}
+
+/* ===== Fragment 动画 ===== */
+.reveal .fragment.fade-in-then-semi-out.visible {
+  opacity: 0.4;
+}
+.reveal .fragment.fade-in-then-semi-out.current-fragment {
+  opacity: 1;
+}
+
+/* ===== 转折点编号徽标 ===== */
+.tp-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--accent-warm);
+  color: #0a0a0f;
+  font-size: var(--text-secondary);
+  font-weight: 800;
+  margin-right: 0.4em;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+/* ===== 箭头 ===== */
+.arrow {
+  font-size: 48px;
+  color: var(--accent);
+  margin: 0 0.3em;
+}
+.arrow-warm {
+  font-size: 48px;
+  color: var(--accent-warm);
+  margin: 0 0.3em;
+}
+
+/* ===== 进度条 ===== */
+.reveal .progress {
+  color: var(--accent-warm);
+  height: 3px;
+}
+
+/* ===== Slide Number ===== */
+.reveal .slide-number {
+  color: var(--muted);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ===== 封面页特殊样式 ===== */
+.slide-cover h1 {
+  font-size: 2.6em;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+.slide-cover .subtitle {
+  font-size: var(--text-secondary);
+  color: var(--muted-warm);
+  margin-top: var(--space-md);
+  line-height: 1.7;
+}
+.slide-cover .author {
+  font-size: var(--text-caption);
+  color: var(--muted-warm);
+  margin-top: var(--space-lg);
+}
+
+/* ===== Links ===== */
+.reveal a {
+  transition: color var(--transition-fast);
+}
+
+/* ===== 高亮标记 ===== */
+.highlight-blue { color: var(--accent); }
+.highlight-green { color: var(--accent-green); }
+.highlight-red { color: var(--accent-red); }
+.highlight-yellow { color: var(--accent-warm); }
+.highlight-warm { color: var(--accent-warm); }
+
+/* ===== 工具类 ===== */
+.text-muted {
+  font-size: var(--text-secondary);
+  color: var(--muted);
+}
+.text-muted-warm {
+  font-size: var(--text-secondary);
+  color: var(--muted-warm);
+}
+.text-center {
+  text-align: center;
+}
+.mt-md { margin-top: var(--space-md); }
+.mt-lg { margin-top: var(--space-lg); }
+
+/* ===== 附录页 ===== */
+.slide-appendix h2 {
+  color: var(--muted);
+  font-size: 1.3em;
+}
+.slide-appendix table th {
+  color: var(--muted);
+}
+
+/* ===== 响应式调整 ===== */
+@media (max-width: 1200px) {
+  :root {
+    --number-font-size: 72px;
+  }
+  .slide-quote blockquote {
+    font-size: 40px;
+  }
+}

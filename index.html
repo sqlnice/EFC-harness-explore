@@ -1,0 +1,770 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Harness 改造大型项目的问题与思考</title>
+  <link rel="stylesheet" href="vendor/reveal/reset.css">
+  <link rel="stylesheet" href="vendor/reveal/reveal.css">
+  <link rel="stylesheet" href="theme/custom-dark.css">
+  <!-- 代码高亮 -->
+  <link rel="stylesheet" href="vendor/reveal/plugin/highlight/monokai.css">
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+      <!-- ============================================================ -->
+      <!-- 第一部分：认知转变（8 页，约 6-8 分钟）                       -->
+      <!-- ============================================================ -->
+
+      <!-- Page 1: 封面 -->
+      <section class="slide-cover" id="cover">
+        <h1>Harness<br>改造大型项目的问题与思考</h1>
+        <p class="subtitle">从"告诉 AI 做什么"到"让 AI 自己知道做对没有"<br>一个人 + 几个 Agent，7 天改造 9 个子应用的实战复盘</p>
+        <p class="author">人 + Claude Opus 4.6 &nbsp;|&nbsp; 2026.04</p>
+        <aside class="notes">
+          开场不做自我介绍，直接进入下一页数据冲击。控制在 30 秒内翻页。
+        </aside>
+      </section>
+
+      <!-- Page 2: 数据冲击 -->
+      <section id="data-shock">
+        <h2>改造前 vs 改造后</h2>
+        <div class="data-grid cols-3">
+          <div class="data-cell">
+            <div class="no-fragment">
+              <div class="big-number highlight-red">1,717</div>
+              <div class="big-number-label">处 any</div>
+            </div>
+          </div>
+          <div class="data-cell">
+            <div class="no-fragment">
+              <div class="big-number highlight-red">0</div>
+              <div class="big-number-label">个测试</div>
+            </div>
+          </div>
+          <div class="data-cell">
+            <div class="no-fragment">
+              <div class="big-number highlight-red">0</div>
+              <div class="big-number-label">个 Hook</div>
+            </div>
+          </div>
+        </div>
+        <div class="no-fragment mt-lg">
+          <p class="text-muted" style="margin-bottom: var(--space-sm);">7 天后 &darr;</p>
+          <div class="data-grid cols-3">
+            <div class="data-cell">
+              <div class="big-number highlight-green">0</div>
+              <div class="big-number-label">处 any</div>
+            </div>
+            <div class="data-cell">
+              <div class="big-number highlight-green">2,987</div>
+              <div class="big-number-label">个测试</div>
+            </div>
+            <div class="data-cell">
+              <div class="big-number highlight-green">3 层</div>
+              <div class="big-number-label">自动防护</div>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          停顿 2 秒再翻页。先让红色数字停留，再展示绿色。
+          口播："560 处 any、0 个测试、0 个 hook —— 这是我们一个运行了两年的子应用改造前的状态。7 天后：0 处 any、2987 个测试、三层自动防护。改造者不是一个团队，是一个人加几个 AI Agent。"
+        </aside>
+      </section>
+
+      <!-- Page 3: 提问 + 三次进化总览（合并） -->
+      <section id="three-eras">
+        <h2>为什么以前做不到？—— AI 编程的三次进化</h2>
+        <table>
+          <thead>
+            <tr><th>阶段</th><th>核心动作</th><th>比喻</th></tr>
+          </thead>
+          <tbody>
+            <tr class="no-fragment">
+              <td><strong>Prompt</strong></td>
+              <td>写精确指令让 AI 生成代码</td>
+              <td>拉老虎机</td>
+            </tr>
+            <tr class="no-fragment">
+              <td><strong>Context</strong></td>
+              <td>给 AI 足够的上下文理解项目</td>
+              <td>给实习生一本操作手册</td>
+            </tr>
+            <tr class="no-fragment">
+              <td><strong>Harness</strong></td>
+              <td>让代码库成为 AI 的反馈系统</td>
+              <td>配一套自动化流水线</td>
+            </tr>
+          </tbody>
+        </table>
+        <aside class="notes">
+          逐行展开，每行停 3 秒讲真实体验。Prompt 时代用 Cursor 手动喂上下文；Context 时代写 CLAUDE.md；Harness 时代 tsc/eslint/vitest 三层 sensor + hook 实时反压。
+        </aside>
+      </section>
+
+      <!-- Page 4: 金句 - 仓库即 Context -->
+      <section class="slide-quote" id="quote-repo-is-context">
+        <blockquote>
+          你不需要在代码库之外额外构建上下文系统。<br><br>
+          让代码库本身成为高质量的上下文。<br><br>
+          <strong>仓库即 Context。</strong>
+        </blockquote>
+        <aside class="notes">
+          金句页，停顿 2-3 秒。强调"不需要刻意做 Context Engineering，不需要单独搭 RAG"。
+        </aside>
+      </section>
+
+      <!-- Page 5: 为什么传统协作不适合 Agent + 金句 -->
+      <section id="why-not-traditional">
+        <h2>为什么传统协作方式不适合 Agent</h2>
+        <ul>
+          <li>Agent 没有"记忆上一轮犯了什么错"的能力<br><span style="color: var(--muted); font-size: var(--text-secondary);">每次启动都是一张白纸</span></li>
+          <li>传统方式靠<strong>人的经验积累</strong>保证质量<br><span style="color: var(--muted); font-size: var(--text-secondary);">Agent 需要<strong>系统的反馈机制</strong></span></li>
+          <li>思考成本变低，迭代速度变快<br><span style="color: var(--muted); font-size: var(--text-secondary);">"不要怕，经验是迭代出来的"</span></li>
+        </ul>
+        <blockquote style="margin-top: var(--space-md); font-size: var(--text-body); border-left: 4px solid var(--accent-warm); padding: var(--space-xs) var(--space-sm); font-style: normal;">
+          以前保证代码质量靠的是"找对的人"；现在靠的是"建对的闸门"。<br>
+          <strong style="color: var(--accent-warm);">人会疲劳、会遗忘、会偷懒，但编译器 + lint 不会。</strong>
+        </blockquote>
+        <aside class="notes">
+          讲"三省六部"比喻 —— 给不同人分配职责、用流程文档约束行为，在 Agent 时代不适用。讲完三点后停顿 2 秒，读金句收束。
+        </aside>
+      </section>
+
+      <!-- Page 7: 信息链路 —— 改造的起源 -->
+      <section id="info-chain">
+        <h2>这次改造是怎么开始的</h2>
+        <div class="flow-chain">
+          <div class="flow-node no-fragment">
+            <strong>收集文章</strong><br><span class="flow-label">X / V2EX / 小红书</span>
+          </div>
+          <span class="arrow-warm no-fragment">&rarr;</span>
+          <div class="flow-node no-fragment">
+            <strong>LLM 整合</strong><br><span class="flow-label">生成执行计划</span>
+          </div>
+          <span class="arrow-warm no-fragment">&rarr;</span>
+          <div class="flow-cycle no-fragment">
+            <div class="flow-node">
+              <strong>实战落地</strong><br><span class="flow-label">EFC 项目</span>
+            </div>
+            <svg class="cycle-arrows" width="120" height="100" viewBox="0 0 120 100">
+              <!-- 右侧弧线箭头：从上到下 -->
+              <path d="M 100 10 C 130 50, 130 50, 100 90" fill="none" stroke="var(--accent-warm)" stroke-width="2.5"/>
+              <polygon points="100,90 106,80 94,80" fill="var(--accent-warm)"/>
+              <!-- 左侧弧线箭头：从下到上 -->
+              <path d="M 20 90 C -10 50, -10 50, 20 10" fill="none" stroke="var(--accent-warm)" stroke-width="2.5"/>
+              <polygon points="20,10 14,20 26,20" fill="var(--accent-warm)"/>
+            </svg>
+            <div class="flow-node">
+              <strong>沉淀文档</strong><br><span class="flow-label">1683 行实践记录</span>
+            </div>
+          </div>
+        </div>
+        <p class="no-fragment text-muted-warm text-center">
+          AI 不只帮你写代码，还能把零散信息变成可执行的计划
+        </p>
+        <aside class="notes">
+          讲起源："这次改造不是某天拍脑袋决定的。前几个月我一直在 X、V2EX、小红书上收集 AI 编程的实践文章，然后用 LLM 整合成一套执行计划，再到 EFC 项目实战验证。最终沉淀出 1683 行实践记录。"
+        </aside>
+      </section>
+
+
+      <!-- ============================================================ -->
+      <!-- 第二部分：实战落地（14 页，约 15-18 分钟）                    -->
+      <!-- ============================================================ -->
+
+      <!-- Page 9: 7 天时间线全景 -->
+      <section id="timeline">
+        <h2>7 天 &middot; 18 阶段 &middot; 全景</h2>
+        <div class="timeline">
+          <div class="timeline-item no-fragment">
+            <div class="timeline-day">Day 1-2</div>
+            <div class="timeline-bar"></div>
+            <div class="timeline-content">基础设施搭建（ESLint / tsc / vitest / 类型生成 / JS&rarr;TS）</div>
+          </div>
+          <div class="timeline-item no-fragment">
+            <div class="timeline-day">Day 3</div>
+            <div class="timeline-bar"></div>
+            <div class="timeline-content">配置栈自审 + 全量零 any</div>
+          </div>
+          <div class="timeline-item no-fragment">
+            <div class="timeline-day">Day 4</div>
+            <div class="timeline-bar"></div>
+            <div class="timeline-content">Skill 工程化（瘦身 / 覆盖策略 / 执行模型重写）</div>
+          </div>
+          <div class="timeline-item no-fragment">
+            <div class="timeline-day">Day 5</div>
+            <div class="timeline-bar"></div>
+            <div class="timeline-content">cmp-web 端到端复制验证</div>
+          </div>
+          <div class="timeline-item no-fragment">
+            <div class="timeline-day">Day 6</div>
+            <div class="timeline-bar"></div>
+            <div class="timeline-content">6 个子应用全部升级 + Skill 收官</div>
+          </div>
+          <div class="timeline-item no-fragment">
+            <div class="timeline-day">Day 7</div>
+            <div class="timeline-bar"></div>
+            <div class="timeline-content">基建统一 + 格式化 + 健康检查</div>
+          </div>
+        </div>
+        <aside class="notes">
+          快速过一遍时间线，不展开。每个条目点到即止。
+        </aside>
+      </section>
+
+      <!-- Page 10: 转折点 1 - 故事 + 数据 -->
+      <section id="tp1-story">
+        <h2><span class="tp-badge">1</span>技术债务的乘法成本</h2>
+        <div class="two-col two-col--story">
+          <div>
+            <p style="font-size: var(--text-secondary); color: var(--muted); margin-bottom: var(--space-sm);">Agent 批量迁移 <code>.js</code> → <code>.ts</code></p>
+            <ul style="font-size: var(--text-body); margin-left: 0; padding-left: 1.2em; line-height: 2;">
+              <li><strong>坏签名</strong> — <code>request&lt;T, R&gt;</code> 中 <code>T</code> 纯占位</li>
+              <li><strong>被复制</strong> — Agent 忠实复现已有模式</li>
+              <li><strong>雪崩</strong> — 1 处设计 × 110 文件 = 连锁报错</li>
+            </ul>
+          </div>
+          <div class="data-grid cols-2" style="margin: 0;">
+            <div class="data-cell">
+              <div class="big-number" style="font-size: var(--text-data-lg);">560 <span class="arrow" style="font-size: var(--text-subtitle);">&rarr;</span> 0</div>
+              <div class="big-number-label">消除的 : any</div>
+            </div>
+            <div class="data-cell">
+              <div class="big-number" style="font-size: var(--text-data-lg);">1,906</div>
+              <div class="big-number-label">函数入参 any</div>
+            </div>
+            <div class="data-cell">
+              <div class="big-number" style="font-size: var(--text-data-lg);">2,150</div>
+              <div class="big-number-label">精确类型替换</div>
+            </div>
+            <div class="data-cell">
+              <div class="big-number" style="font-size: var(--text-data-lg);">~110</div>
+              <div class="big-number-label">涉及 service 文件</div>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          左边讲故事，右边让数字说话。重点是"一个看似无害的签名设计"在 Agent 批量操作时引发雪崩。停顿 2 秒再翻页。
+        </aside>
+      </section>
+
+      <!-- Page 12: 金句 - 线性成本 → 乘法成本 -->
+      <section class="slide-quote" id="quote-multiply">
+        <blockquote>
+          人时代的技术债是<span class="highlight-yellow">线性成本</span>，<br>
+          Agent 时代的技术债是<strong>乘法成本</strong>。
+        </blockquote>
+        <aside class="notes">
+          金句页，停顿 2-3 秒。"人写代码时，一个糟糕的签名只影响你正在写的那个函数。但 Agent 是批量操作的 —— 一个坏签名乘以 200 个 service 函数，就是 200 处报错。"
+        </aside>
+      </section>
+
+      <!-- Page 13: 转折点 2 - 故事 -->
+      <section id="tp2-story">
+        <h2><span class="tp-badge">2</span>反馈环路的质变</h2>
+        <p style="margin-top: var(--space-md);">做了一个实验 —— 故意让 Agent 引入一个类型错误：</p>
+        <div class="no-fragment" style="margin-top: var(--space-sm);">
+          <div class="principle-card" style="border-left-color: var(--accent-green);">
+            <h3>第一层：Guides（前馈）</h3>
+            <p>让 Agent "把类型改成 any" &rarr; <strong>它拒绝了</strong><br>
+            因为读到了 CLAUDE.md 里的禁止规则</p>
+          </div>
+        </div>
+        <div class="no-fragment" style="margin-top: var(--space-sm);">
+          <div class="principle-card" style="border-left-color: var(--accent);">
+            <h3>第二层：Sensors（反馈）</h3>
+            <p>绕过 Guides 引入错误 &rarr; PostToolUse hook 立刻捕捉<br>
+            Agent <strong>自动回退修复</strong>，~3 秒</p>
+          </div>
+        </div>
+        <aside class="notes">
+          讲实验过程，有戏剧性。先说 Guides 拦住了，再说为了测试 Sensors 不得不绕过。
+        </aside>
+      </section>
+
+      <!-- Page 14: 反馈延迟对比 -->
+      <section id="tp2-compare">
+        <h2>反馈延迟对比</h2>
+        <table>
+          <thead>
+            <tr><th>机制</th><th>触发时机</th><th>反馈延迟</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>CLAUDE.md 禁止规则</td>
+              <td>Agent 读到上下文时</td>
+              <td><span class="highlight-green"><strong>0（前馈）</strong></span></td>
+            </tr>
+            <tr>
+              <td>PostToolUse hook</td>
+              <td>每次编辑文件后</td>
+              <td><span class="highlight-green"><strong>~3 秒</strong></span></td>
+            </tr>
+            <tr>
+              <td>pre-commit hook</td>
+              <td>git commit 时</td>
+              <td><span class="highlight-yellow">分钟级</span></td>
+            </tr>
+            <tr>
+              <td>Code Review</td>
+              <td>PR 提交后</td>
+              <td><span class="highlight-red">小时~天级</span></td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="no-fragment text-muted mt-md">
+          反馈延迟从天级压缩到秒级 —— 不是线性提升，是质变
+        </p>
+        <aside class="notes">
+          重点对比绿色（秒级）和红色（天级）。补充：vitest reporter 设为 dot（沉默设计），反馈环路降噪也很重要。
+        </aside>
+      </section>
+
+      <!-- Page 15: 金句 - Guides + Sensors -->
+      <section class="slide-quote" id="quote-sensors">
+        <blockquote>
+          Guides 可以被忽略，<br>
+          <strong>但 Sensors 不会说谎。</strong>
+        </blockquote>
+        <aside class="notes">
+          金句页，停顿 2-3 秒。
+        </aside>
+      </section>
+
+      <!-- Page 16: 转折点 3 - 修 bug 必须修模板 + 两个反问 -->
+      <section id="tp3-story">
+        <h2><span class="tp-badge">3</span>修 bug 必须修模板</h2>
+        <div class="principle-card" style="border-left-color: var(--accent-red);">
+          <h3>只修实例，不修 skill = 没修</h3>
+          <p>手动删了空 CLAUDE.md &rarr; 下个 Agent 按 skill 又生成回来</p>
+        </div>
+        <div class="two-col" style="margin-top: var(--space-md);">
+          <div class="principle-card">
+            <h3>反问 1 &mdash; 溯源</h3>
+            <p>这个文件谁让 Agent 生成的？<br><strong>那条 skill 指令还在吗？</strong></p>
+          </div>
+          <div class="principle-card">
+            <h3>反问 2 &mdash; 验证</h3>
+            <p>改完 skill 后重新跑一遍，<br><strong>旧产物还会不会复活？</strong></p>
+          </div>
+        </div>
+        <p class="text-muted mt-md">
+          解法：PostToolUse hook 自动检测 skill 产物被编辑 &rarr; <strong class="highlight-warm">提醒将改动回流到 skill 模板。</strong>
+        </p>
+        <aside class="notes">
+          核心观点：改生成物没用，要改生成它的指令。两个反问是最实用的落地习惯。反问 1 Agent 能帮你做（grep skill 文件），反问 2 需要人判断。
+        </aside>
+      </section>
+
+      <!-- Page 18: 转折点 4 - AST/状态机死代码扫描 -->
+      <section id="tp4-data">
+        <h2><span class="tp-badge">4</span>Agent 自主升级工具链</h2>
+        <p style="margin-top: var(--space-sm); font-size: var(--text-secondary);">任务：扫描项目死代码。Agent 没有停下来等人 —— 它自己迭代了工具。</p>
+        <div class="two-col" style="margin-top: var(--space-md);">
+          <div>
+            <div class="principle-card" style="border-left-color: var(--accent-red);">
+              <h3>第一轮：subagent + grep</h3>
+              <p>派发 subagent 扫描 &rarr; 待人工确认 <strong style="font-size: var(--text-data-lg);">120</strong></p>
+            </div>
+            <div class="principle-card" style="border-left-color: var(--accent-green); margin-top: var(--space-sm);">
+              <h3>第二轮：自写 AST 解析器</h3>
+              <p>判断 grep 不够精确 &rarr; 自己写 AST + 状态机追踪 import 链路</p>
+            </div>
+          </div>
+          <div class="data-grid cols-2" style="margin: 0;">
+            <div class="data-cell">
+              <div class="big-number" style="font-size: var(--text-data-lg);">120 <span class="arrow" style="font-size: var(--text-subtitle);">&rarr;</span> 29</div>
+              <div class="big-number-label">需人工确认</div>
+            </div>
+            <div class="data-cell">
+              <div class="big-number" style="font-size: var(--text-data-lg);">3,173</div>
+              <div class="big-number-label">扫描文件</div>
+            </div>
+            <div class="data-cell">
+              <div class="big-number" style="font-size: var(--text-data-lg);">4,239</div>
+              <div class="big-number-label">追踪 import</div>
+            </div>
+            <div class="data-cell">
+              <div class="big-number" style="font-size: var(--text-data-lg);">76%<span style="font-size: var(--text-subtitle);">↓</span></div>
+              <div class="big-number-label">人工介入减少</div>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          重点不是数字，是 Agent 的自主决策：发现 grep 结果噪声太多，没有停下来问人，而是自己切换到 AST 精确分析，把需要人确认的量从 120 压到 29。它在自主判断工具够不够用。
+        </aside>
+      </section>
+
+
+      <!-- Page 20: 转折点 5 - 执行模式 1.0→4.0 -->
+      <section id="tp5-evolution">
+        <h2><span class="tp-badge">5</span>执行模式的 4 次进化</h2>
+        <table style="font-size: var(--text-secondary); margin-top: var(--space-md);">
+          <thead>
+            <tr><th>版本</th><th>模式</th><th>触发痛点</th></tr>
+          </thead>
+          <tbody>
+            <tr class="no-fragment">
+              <td><strong>1.0</strong></td>
+              <td>单 Agent 顺序执行</td>
+              <td>3228 行文件撑爆上下文</td>
+            </tr>
+            <tr class="no-fragment">
+              <td><strong>2.0</strong></td>
+              <td>人工拆分 + 并行 Agent</td>
+              <td>每次都要重写提示词</td>
+            </tr>
+            <tr class="no-fragment">
+              <td><strong>3.0</strong></td>
+              <td>Skill 诊断 + 提示词生成</td>
+              <td>用户仍是 orchestrator</td>
+            </tr>
+            <tr class="no-fragment">
+              <td><strong>4.0</strong></td>
+              <td>主 Agent 纯编排 + 自动编排</td>
+              <td>零暂停点自动化</td>
+            </tr>
+          </tbody>
+        </table>
+        <aside class="notes">
+          逐行推进。1.0：最朴素的方式，一个 Agent 从头干到尾，3228 行文件撑爆上下文，被迫拆分——解决容量。2.0：并行能跑了，但每次都要重写提示词，纯重复劳动，于是固化成 Skill——解决重复。3.0：Skill 能生成提示词了，但用户还是 orchestrator，每步手动粘贴、判断顺序、处理失败，7~9 个暂停点。4.0：主 Agent 接管编排，自动派 subagent、自动重跑，暂停点降到 0——解决暂停。每次进化都是被痛点逼出来的，不是提前设计的。
+        </aside>
+      </section>
+
+      <!-- Page 21: 3.0 vs 4.0 对比 -->
+      <section id="tp5-compare">
+        <h2>3.0 vs 4.0</h2>
+        <div class="compare-container">
+          <div class="compare-before">
+            <h3 class="highlight-red">3.0</h3>
+            <ul style="font-size: var(--text-secondary);">
+              <li>执行主体：<strong>用户</strong></li>
+              <li>人工暂停点：<strong>7~9 个</strong></li>
+              <li>失败恢复：用户看报告决定</li>
+              <li>并行执行：手动开多个 Agent</li>
+              <li>最终输出：markdown 片段拼接</li>
+            </ul>
+          </div>
+          <div class="compare-after">
+            <h3 class="highlight-green">4.0</h3>
+            <ul style="font-size: var(--text-secondary);">
+              <li>执行主体：<strong>主 Agent</strong></li>
+              <li>人工暂停点：<strong>0 个</strong></li>
+              <li>失败恢复：3 次升级重跑 + auto-fix</li>
+              <li>并行执行：自动编排 自动派 subagent</li>
+              <li>最终输出：固定 7 段式模板</li>
+            </ul>
+          </div>
+        </div>
+        <aside class="notes">
+          重点对比暂停点：从 7~9 个到 0 个，这是最直观的进步。3.0 用户还在复制提示词到新 Agent、手动判断顺序；4.0 主 Agent 自己编排 自动编排、派 subagent、失败自动重跑 3 次。最终 Skill 从"给人读的操作手册"变成了"给 Agent 执行的半程序"。
+        </aside>
+      </section>
+
+      <!-- Page 22: 金句 - 从简单开始 -->
+      <section class="slide-quote" id="quote-simple-start">
+        <blockquote>
+          1.0&rarr;2.0 解决容量，2.0&rarr;3.0 解决重复，<br>3.0&rarr;4.0 解决暂停。<br><br>
+          <strong>从简单开始，失败后再改进。</strong>
+        </blockquote>
+        <aside class="notes">
+          金句页，停顿 2-3 秒。"如果一开始就冲着 4.0 设计，你会塞满大量'理论上有用但实际不需要'的机制。"
+        </aside>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- 第三部分：方法论与收束（8 页，约 8-10 分钟）                  -->
+      <!-- ============================================================ -->
+
+      <!-- Page 23: 5 条可复用的原则（合并） -->
+      <section id="principles-overview">
+        <h2>5 条可复用的原则</h2>
+        <table style="font-size: var(--text-secondary); margin-top: var(--space-sm);">
+          <thead>
+            <tr><th style="width: 30%;">原则</th><th style="width: 40%;">含义</th><th style="width: 30%;">推论</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong class="highlight-blue">1. 仓库即 Context</strong></td>
+              <td>让代码库本身成为高质量上下文，不额外构建上下文系统</td>
+              <td><strong style="color: var(--accent-warm);">项目越干净，Agent 越强</strong></td>
+            </tr>
+            <tr>
+              <td><strong class="highlight-blue">2. 技术债是乘法成本</strong></td>
+              <td>Agent 批量操作时，坏设计乘以所有文件</td>
+              <td><strong style="color: var(--accent-warm);">优先偿还乘法因子最大的债</strong></td>
+            </tr>
+            <tr>
+              <td><strong class="highlight-blue">3. 反馈环路越短越好</strong></td>
+              <td>PostToolUse hook 让反馈从天级压缩到 3 秒</td>
+              <td><strong style="color: var(--accent-warm);">强类型是编译期质量闸</strong></td>
+            </tr>
+            <tr>
+              <td><strong class="highlight-blue">4. Guides + Sensors</strong></td>
+              <td>Guides 拦截意图，Sensors 检测结果，缺一不可</td>
+              <td><strong style="color: var(--accent-warm);">Sensors 是不依赖模型的硬约束</strong></td>
+            </tr>
+            <tr>
+              <td><strong class="highlight-blue">5. 修 bug 必须修模板</strong></td>
+              <td>只修实例不修模板，下一轮 Agent 会复活同一份 bug</td>
+              <td><strong style="color: var(--accent-warm);">用 hook 自动提醒回流 skill</strong></td>
+            </tr>
+          </tbody>
+        </table>
+        <aside class="notes">
+          逐条讲，每条 30 秒左右。原则 1-2 用转折点 1 数据做锚点；原则 3-4 用转折点 2 实验做锚点；原则 5 用转折点 3 故事做锚点。
+        </aside>
+      </section>
+
+      <!-- Page 27: Opus 4.6 体感对比 -->
+      <section id="opus-compare">
+        <h2>体感对比：2025 vs 2026</h2>
+        <table style="font-size: var(--text-secondary);">
+          <thead>
+            <tr><th>维度</th><th>2025 Cursor</th><th>2026 Claude Code + Opus 4.6</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>上下文</td>
+              <td>手动告诉它看哪些文件</td>
+              <td><strong>自己探索项目结构</strong></td>
+            </tr>
+            <tr>
+              <td>批量操作</td>
+              <td>一次改一个文件</td>
+              <td><strong>派发 subagent 并行处理</strong></td>
+            </tr>
+            <tr>
+              <td>代码能力</td>
+              <td>能写业务代码</td>
+              <td><strong>能写 AST 解析器、状态机</strong></td>
+            </tr>
+            <tr>
+              <td>工具编写</td>
+              <td>需要人写辅助脚本</td>
+              <td><strong>自己写一次性工具脚本</strong></td>
+            </tr>
+            <tr>
+              <td>协作模式</td>
+              <td>Chat &rarr; 复制到项目改</td>
+              <td><strong>Skill 编排 &rarr; 自动编排 执行</strong></td>
+            </tr>
+          </tbody>
+        </table>
+        <aside class="notes">
+          不是 AI 变聪明了所以偷懒 —— 是精力从"写代码"转移到"建闸门"。人的角色从 Generator 变成 Evaluator。
+        </aside>
+      </section>
+
+      <!-- Page 29: 三层健康架构图 -->
+      <section id="three-layers">
+        <h2>后续探索：三层健康架构</h2>
+        <div class="arch-stack">
+          <div class="arch-layer future">
+            <span class="arch-label">未来</span>
+            <h3 style="color: var(--muted); margin: 0;">第三层：系统级</h3>
+            <p style="font-size: var(--text-caption); margin: var(--space-xs) 0 0;">自愈反馈循环 &middot; 监控 &rarr; 分诊 &rarr; 修复 &rarr; 验证</p>
+          </div>
+          <div class="arch-layer next">
+            <span class="arch-label">下一步</span>
+            <h3 style="color: var(--accent); margin: 0;">第二层：流程级</h3>
+            <p style="font-size: var(--text-caption); margin: var(--space-xs) 0 0;">CI/CD 集成质量关卡 + AI 代码审查</p>
+          </div>
+          <div class="arch-layer done">
+            <span class="arch-label">已完成</span>
+            <h3 style="color: var(--accent-green); margin: 0;">第一层：代码级</h3>
+            <p style="font-size: var(--text-caption); margin: var(--space-xs) 0 0;">Hooks + Sensors + Back-pressure + Loop 检测</p>
+          </div>
+        </div>
+        <p class="text-muted text-center mt-md">
+          每一层的核心思想都一样：让反馈环路覆盖所有影响产出质量的环节
+        </p>
+        <aside class="notes">
+          从下往上讲：第一层已完成，第二层是下一步（Jenkins 集成），第三层是远景。不要在这里展开太多，点到为止。
+        </aside>
+      </section>
+
+      <!-- Page 30: 结尾金句 + Q&A -->
+      <section class="slide-quote" id="ending">
+        <blockquote>
+          Prompt 时代我们教 AI 写代码。<br>
+          Context 时代我们教 AI 理解项目。<br>
+          Harness 时代我们不再教 AI ——<br><br>
+          <strong>我们建一个系统，<br>让 AI 自己知道有没有做对。</strong>
+        </blockquote>
+        <p style="margin-top: var(--space-xl); font-size: var(--text-secondary); color: var(--muted);">Q&A &nbsp;&middot;&nbsp; <a href="#/appendix-index" style="color: var(--accent);">附录索引 &rarr;</a></p>
+        <aside class="notes">
+          先停顿 3 秒，让金句沉淀。然后："这个系统不是什么新东西，就是我们积累了很多年的工程化体系 —— 类型系统、lint、测试、CI。唯一的区别是，现在它的反馈对象不只是人，还有 Agent。" 然后进入 Q&A。如果有人问细节，可以跳到附录。
+        </aside>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- 附录（A0-A6）                                                -->
+      <!-- ============================================================ -->
+
+      <!-- A0: 附录目录 -->
+      <section id="appendix-index" class="slide-appendix">
+        <h2>附录索引</h2>
+        <table style="font-size: 24px;">
+          <thead>
+            <tr><th>编号</th><th>内容</th><th>跳转</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>A1</td><td>sms-web 改造前后完整对比表</td><td><a href="#/A1">前往 &rarr;</a></td></tr>
+            <tr><td>A2</td><td>各子应用 commit 数分布</td><td><a href="#/A2">前往 &rarr;</a></td></tr>
+            <tr><td>A3</td><td>Commit 类型分布</td><td><a href="#/A3">前往 &rarr;</a></td></tr>
+            <tr><td>A4</td><td>测试覆盖分子应用明细</td><td><a href="#/A4">前往 &rarr;</a></td></tr>
+            <tr><td>A5</td><td>后续探索前提条件差距表</td><td><a href="#/A5">前往 &rarr;</a></td></tr>
+            <tr><td>A6</td><td>80 个 Bug 分类明细</td><td><a href="#/A6">前往 &rarr;</a></td></tr>
+          </tbody>
+        </table>
+        <p style="margin-top: 1.5em;"><a href="#/ending" style="color: var(--accent);">&larr; 返回 Q&A</a></p>
+      </section>
+
+      <!-- A1: sms-web 改造对比 -->
+      <section id="A1" class="slide-appendix">
+        <h2>A1：sms-web 改造前后对比</h2>
+        <div class="compare-container">
+          <div class="compare-before">
+            <h3 class="highlight-red">改造前</h3>
+            <ul style="font-size: 20px;">
+              <li>560 处 explicit any</li>
+              <li>0 个测试文件</li>
+              <li>0 个 Hook</li>
+              <li>JS/TS 混合</li>
+              <li>无 ESLint 规则</li>
+            </ul>
+          </div>
+          <div class="compare-after">
+            <h3 class="highlight-green">改造后</h3>
+            <ul style="font-size: 20px;">
+              <li>0 处 any</li>
+              <li>146 个 spec 文件 / 2,901 用例</li>
+              <li>三层自动防护（tsc/eslint/vitest）</li>
+              <li>纯 TypeScript</li>
+              <li>严格 ESLint + Prettier</li>
+            </ul>
+          </div>
+        </div>
+        <p style="margin-top: 1em;"><a href="#/appendix-index" style="color: var(--accent);">&larr; 返回附录索引</a></p>
+      </section>
+
+      <!-- A2: 各子应用 commit 数 -->
+      <section id="A2" class="slide-appendix">
+        <h2>A2：各子应用 Commit 数</h2>
+        <table style="font-size: 22px;">
+          <thead>
+            <tr><th>子应用</th><th>commit 数</th><th>角色</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>sms-web</td><td>46</td><td>基准参考实现</td></tr>
+            <tr><td>cmp-web</td><td>44</td><td>第二个端到端完成</td></tr>
+            <tr><td>cos-web</td><td>39</td><td></td></tr>
+            <tr><td>csc-web</td><td>39</td><td>租户端（独立部署）</td></tr>
+            <tr><td>cop-web</td><td>33</td><td></td></tr>
+            <tr><td>cms-web</td><td>30</td><td></td></tr>
+            <tr><td>main-web</td><td>16</td><td>Vue 3 主应用</td></tr>
+            <tr><td>scr-web</td><td>15</td><td>大屏展示</td></tr>
+            <tr><td>form-web</td><td>6</td><td>表单设计器</td></tr>
+            <tr><td>EFC-root</td><td>40</td><td>项目级配置/文档</td></tr>
+          </tbody>
+        </table>
+        <p style="margin-top: 1em;"><a href="#/appendix-index" style="color: var(--accent);">&larr; 返回附录索引</a></p>
+      </section>
+
+      <!-- A3: Commit 类型分布 -->
+      <section id="A3" class="slide-appendix">
+        <h2>A3：Commit 类型分布</h2>
+        <table style="font-size: 22px;">
+          <thead>
+            <tr><th>类型</th><th>数量</th><th>占比</th><th>说明</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>chore</td><td>99</td><td>32%</td><td>依赖升级、配置统一</td></tr>
+            <tr><td>fix</td><td>80</td><td>26%</td><td>Vite 运行时、路由、SCSS、类型</td></tr>
+            <tr><td>refactor</td><td>66</td><td>21%</td><td>JS&rarr;TS 迁移、any 消除</td></tr>
+            <tr><td>docs</td><td>28</td><td>9%</td><td>知识库、CLAUDE.md</td></tr>
+            <tr><td>feat</td><td>23</td><td>8%</td><td>ESLint 规则、harness 工程化、vitest</td></tr>
+            <tr><td>style</td><td>9</td><td>3%</td><td>prettier 格式化</td></tr>
+          </tbody>
+        </table>
+        <p style="margin-top: 1em;"><a href="#/appendix-index" style="color: var(--accent);">&larr; 返回附录索引</a></p>
+      </section>
+
+      <!-- A4: 测试覆盖分应用明细 -->
+      <section id="A4" class="slide-appendix">
+        <h2>A4：测试覆盖分子应用明细</h2>
+        <table style="font-size: 22px;">
+          <thead>
+            <tr><th>子应用</th><th>spec 文件数</th><th>测试用例数</th><th>说明</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>sms-web（= cmp/cms/cop/cos/csc-web）</td><td>146</td><td>2,901</td><td>6 个共享子应用</td></tr>
+            <tr><td>scr-web</td><td>7</td><td>42</td><td>独立</td></tr>
+            <tr><td>main-web</td><td>4</td><td>40</td><td>独立</td></tr>
+            <tr><td>form-web</td><td>4</td><td>4</td><td>独立</td></tr>
+            <tr><td><strong>合计（去重）</strong></td><td><strong>161</strong></td><td><strong>2,987</strong></td><td>改造前：0</td></tr>
+          </tbody>
+        </table>
+        <p style="margin-top: 1em;"><a href="#/appendix-index" style="color: var(--accent);">&larr; 返回附录索引</a></p>
+      </section>
+
+      <!-- A5: 后续探索前提条件 -->
+      <section id="A5" class="slide-appendix">
+        <h2>A5：后续探索前提条件差距</h2>
+        <table style="font-size: 22px;">
+          <thead>
+            <tr><th>前提</th><th>EFC 现状</th><th>差距</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>自动化测试</td><td>vitest 2,987 用例（纯单元）</td><td>缺 E2E 测试覆盖</td></tr>
+            <tr><td>CI/CD 流程</td><td>Jenkins 已有，未集成质量关卡</td><td>tsc/eslint/vitest 接入 Jenkins</td></tr>
+            <tr><td>线上监控</td><td>项目本身无可观测性</td><td>需接入监控</td></tr>
+            <tr><td>任务管理</td><td>无外部工具</td><td>需引入可被 Agent 读写的任务系统</td></tr>
+            <tr><td>系统架构</td><td>qiankun 微前端，9 子应用统一 harness</td><td>基本就绪</td></tr>
+          </tbody>
+        </table>
+        <p style="margin-top: 1em;"><a href="#/appendix-index" style="color: var(--accent);">&larr; 返回附录索引</a></p>
+      </section>
+
+      <!-- A6: 80 个 Bug 分类 -->
+      <section id="A6" class="slide-appendix">
+        <h2>A6：80 个 Bug 主要类别</h2>
+        <ul style="font-size: 24px; max-width: 85%; margin: 1em auto; columns: 2; column-gap: 3em;">
+          <li style="margin-bottom: 0.5em;"><strong>Vite 开发环境</strong><br><span style="color: var(--muted);">Sass/webpack 冲突/WebSocket proxy</span></li>
+          <li style="margin-bottom: 0.5em;"><strong>类型系统</strong><br><span style="color: var(--muted);">TS 4.9 升级/shims 声明污染</span></li>
+          <li style="margin-bottom: 0.5em;"><strong>路由</strong><br><span style="color: var(--muted);">NavigationDuplicated 静默/权限字段对齐</span></li>
+          <li style="margin-bottom: 0.5em;"><strong>SCSS 语法适配</strong></li>
+          <li style="margin-bottom: 0.5em;"><strong>构建配置</strong></li>
+          <li style="margin-bottom: 0.5em;"><strong>共享层 drift 同步</strong></li>
+          <li style="margin-bottom: 0.5em;"><strong>格式化级联修复</strong></li>
+        </ul>
+        <p style="margin-top: 1em;"><a href="#/appendix-index" style="color: var(--accent);">&larr; 返回附录索引</a></p>
+      </section>
+
+    </div><!-- .slides -->
+  </div><!-- .reveal -->
+
+  <script src="vendor/reveal/reveal.js"></script>
+  <script src="vendor/reveal/plugin/markdown.js"></script>
+  <script src="vendor/reveal/plugin/highlight.js"></script>
+  <script src="vendor/reveal/plugin/notes.js"></script>
+  <script src="vendor/reveal/plugin/search.js"></script>
+  <script>
+    Reveal.initialize({
+      width: 1600,
+      height: 900,
+      hash: true,
+      slideNumber: 'c/t',
+      transition: 'fade',
+      backgroundTransition: 'none',
+      center: true,
+      plugins: [RevealMarkdown, RevealHighlight, RevealNotes, RevealSearch]
+    });
+
+  </script>
+</body>
+</html>
