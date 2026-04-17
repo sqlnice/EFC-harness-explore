@@ -82,91 +82,51 @@
         </aside>
       </section>
 
-      <!-- Page 3: 提问 + 三次进化总览（合并） -->
-      <section id="three-eras">
-        <h2>AI 编程的三次进化</h2>
-        <table>
-          <thead>
-            <tr><th>阶段</th><th>核心动作</th></tr>
-          </thead>
-          <tbody>
-            <tr class="no-fragment">
-              <td><strong>Prompt</strong></td>
-              <td>写精确指令让 AI 生成代码</td>
-            </tr>
-            <tr class="no-fragment">
-              <td><strong>Context</strong></td>
-              <td>给 AI 足够的上下文理解项目</td>
-            </tr>
-            <tr class="no-fragment">
-              <td><strong>Harness</strong></td>
-              <td>让代码库成为 AI 的反馈系统</td>
-            </tr>
-          </tbody>
-        </table>
+      <!-- Page 3: 我具体做了什么（先看代码产物） -->
+      <section id="what-i-did">
+        <h2>我到底做了什么（直接看代码）</h2>
+        <div class="two-col two-col--story">
+          <div>
+            <div class="principle-card" style="border-left-color: var(--accent-green);">
+              <h3>改造范围</h3>
+              <p>7 天内完成 EFC + 9 个子应用基建统一，覆盖 lint / typecheck / test / 格式化</p>
+            </div>
+            <div class="principle-card" style="margin-top: var(--space-sm); border-left-color: var(--accent);">
+              <h3>代码产物</h3>
+              <p>新增严格 ESLint 规则、类型基线、Vitest 用例、Hook 与自动校验链路</p>
+            </div>
+          </div>
+          <div class="data-grid cols-2" style="margin: 0;">
+            <div class="data-cell">
+              <div class="big-number" style="font-size: var(--text-data-lg);">9</div>
+              <div class="big-number-label">微前端子应用</div>
+            </div>
+            <div class="data-cell">
+              <div class="big-number" style="font-size: var(--text-data-lg);">309</div>
+              <div class="big-number-label">总提交数</div>
+            </div>
+            <div class="data-cell">
+              <div class="big-number" style="font-size: var(--text-data-lg);">2,987</div>
+              <div class="big-number-label">测试用例</div>
+            </div>
+            <div class="data-cell">
+              <div class="big-number" style="font-size: var(--text-data-lg);">3 层</div>
+              <div class="big-number-label">质量防护闸门</div>
+            </div>
+          </div>
+        </div>
         <aside class="notes">
           <ul>
-            <li>逐行展开，每行停 3 秒讲真实体验。</li>
-            <li>Prompt 时代用 Cursor 手动喂上下文。</li>
-            <li>Context 时代写 CLAUDE.md。</li>
-            <li>Harness 时代 tsc/eslint/vitest 三层 sensor + hook 实时反压。</li>
-            <li>Prompt 像拉老虎机。</li>
-            <li>Context 是给予合适的上下文/工具/MCP/Skill 等。</li>
-            <li>Harness 像配一套自动化流水线。</li>
+            <li>这一页只回答一个问题：我到底改了哪些“可落地代码产物”。</li>
+            <li>先讲左侧“做了什么”，再讲右侧“规模和结果”。</li>
+            <li>讲完再进入下一页：这套改造是怎么开始、怎么推进的。</li>
           </ul>
         </aside>
       </section>
 
-      <!-- Page 4: 金句 - 仓库即 Context -->
-      <section class="slide-quote" id="quote-repo-is-context">
-        <blockquote>
-          你不需要在代码库之外额外构建上下文系统。<br><br>
-          让代码库本身成为高质量的上下文。<br><br>
-          <strong>仓库即 Context。</strong>
-        </blockquote>
-        <aside class="notes">
-          <ul>
-            <li>金句页，停顿 2-3 秒。</li>
-            <li>强调："不需要刻意做 Context Engineering，不需要单独搭 RAG"。</li>
-            <li>精简口播：</li>
-            <li>不用在仓库外另搭上下文系统，不用额外维护 RAG 或 memory 文件。</li>
-            <li>先把仓库做干净，让代码本身成为上下文。</li>
-            <li>仓库越不纯净，AI 虽然也能找到信息，但会更耗 token。</li>
-            <li>补充：</li>
-            <li>Opus 4.7 对 memory files 的支持更好，</li>
-            <li>但依然建议优先提升仓库本身的上下文质量。</li>
-          </ul>
-        </aside>
-      </section>
-
-      <!-- Page 5: 为什么传统协作不适合 Agent + 金句 -->
-      <section id="why-not-traditional">
-        <h2>为什么传统协作方式不适合 Agent</h2>
-        <ul>
-          <li>Agent 没有"记忆上一轮犯了什么错"的能力</li>
-          <li>传统方式靠<strong>人的经验积累</strong>保证质量</li>
-          <li>思考成本变低，迭代速度变快</li>
-        </ul>
-        <blockquote style="margin-top: var(--space-md); font-size: var(--text-body); border-left: 4px solid var(--accent-warm); padding: var(--space-xs) var(--space-sm); font-style: normal;">
-          以前保证代码质量靠的是"找对的人"；现在靠的是"建对的闸门"。<br>
-          <strong style="color: var(--accent-warm);">人会疲劳、会遗忘、会偷懒，但编译器 + lint 不会。</strong>
-        </blockquote>
-        <aside class="notes">
-          <ul>
-            <li>讲"三省六部"比喻：</li>
-            <li>给不同人分配职责、用流程文档约束行为，在 Agent 时代不适用。</li>
-            <li>讲完三点后停顿 2 秒，读金句收束。</li>
-            <li>补充解释放口播：</li>
-            <li>Agent 每次启动都像一张白纸。</li>
-            <li>传统方式依赖人的经验积累，但 Agent 需要系统反馈机制。</li>
-            <li>迭代速度快以后，经验要靠快速试错沉淀出来。</li>
-          </ul>
-        </aside>
-      </section>
-
-      <!-- Page 7: 信息链路 —— 改造的起源 -->
+      <!-- Page 4: 信息链路 —— 再讲过程 -->
       <section id="info-chain">
-        <h2>这次改造是怎么开始的</h2>
+        <h2>再说过程：这次改造怎么开始</h2>
         <div class="flow-chain">
           <div class="flow-node no-fragment">
             <strong>收集文章</strong><br><span class="flow-label">X / V2EX / 小红书</span>
